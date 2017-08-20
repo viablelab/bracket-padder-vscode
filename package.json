@@ -1,0 +1,77 @@
+{
+    "name": "bracket-padder",
+    "displayName": "bracket-padder",
+    "description": "Smart whitespace padding & auto-closing for bracket pairs",
+    "version": "0.0.1",
+    "publisher": "viablelab",
+    "engines": {
+        "vscode": "^1.15.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.smartClosingCurlyBracket",
+                "title": "Smart }"
+            },
+            {
+                "command": "extension.smartClosingSquareBracket",
+                "title": "Smart ]"
+            },
+            {
+                "command": "extension.smartClosingParen",
+                "title": "Smart )"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "bracket-padder",
+            "properties": {
+                "bracket-padder.smartCloseMaxParseLength": {
+                    "type": [
+                        "number"
+                    ],
+                    "default": 80,
+                    "description": "How many previous characters on a line should be parsed to determine whether to auto close bracket"
+                },
+                "bracket-padder.smartPairs": {
+                    "type": [
+                        "object"
+                    ],
+                    "default": {
+                        "{": "}",
+                        "[": "]",
+                        "(": ")"
+                    },
+                    "description": "Pairs handled by this extension"
+                }
+            }
+        },
+        "keybindings": [
+            {
+                "command": "extension.smartBackspace",
+                "key": "ctrl+ä"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.32",
+        "@types/node": "^6.0.40",
+        "mocha": "^2.3.3",
+        "ramda": "^0.24.1",
+        "typescript": "^2.0.3",
+        "vscode": "^1.0.0"
+    }
+}
