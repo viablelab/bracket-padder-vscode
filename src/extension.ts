@@ -4,9 +4,6 @@ import * as vsc from 'vscode';
 import {
   smartBackspace,
   smartClose,
-  // smartClosingCurlyBracket,
-  // smartClosingSquareBracket,
-  // smartClosingParen,
   smartSpace
 } from './smartActions';
 
@@ -31,9 +28,6 @@ export function activate(context: vsc.ExtensionContext) {
         // Ignore
       }
     }),
-    // vsc.commands.registerCommand('extension.smartClosingCurlyBracket', smartClosingCurlyBracket),
-    // vsc.commands.registerCommand('extension.smartClosingSquareBracket', smartClosingSquareBracket),
-    // vsc.commands.registerCommand('extension.smartClosingParen', smartClosingParen),
   ];
 
   context.subscriptions.concat(disposables);
