@@ -69,6 +69,7 @@
     "devDependencies": {
         "@types/mocha": "^2.2.32",
         "@types/node": "^6.0.40",
+        "event-stream": "^3.3.4",
         "mocha": "^5.2.0",
         "ramda": "^0.24.1",
         "typescript": "^2.0.3",
