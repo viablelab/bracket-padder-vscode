@@ -68,11 +68,11 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^6.0.40",
-    "mocha": "^5.2.0",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.13.8",
+    "mocha": "^6.1.4",
     "ramda": "^0.26.1",
-    "typescript": "^2.0.3",
+    "typescript": "^3.4.5",
     "vscode": "^1.1.33"
   }
 }
