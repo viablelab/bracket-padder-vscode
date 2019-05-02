@@ -1,9 +1,7 @@
 import * as assert from 'assert';
 
 import * as vsc from 'vscode';
-import {
-  createEditorUtil,
-} from './testUtils';
+import { createEditorUtil } from './testUtils';
 import * as extension from '../src/extension';
 import { smartBackspace, smartClose, smartSpace } from '../src/smartActions';
 
@@ -21,6 +19,7 @@ suite('smartBackspace', () => {
     const changeEvent: vsc.TextDocumentContentChangeEvent = {
       range: new vsc.Range(0, 8, 0, 9),
       rangeLength: 1,
+      rangeOffset: 8,
       text: '',
     };
 
@@ -39,6 +38,7 @@ suite('smartBackspace', () => {
     const changeEvent: vsc.TextDocumentContentChangeEvent = {
       range: new vsc.Range(0, 9, 0, 10),
       rangeLength: 1,
+      rangeOffset: 9,
       text: '',
     };
 
@@ -63,6 +63,7 @@ suite('smartSpace', () => {
     const changeEvent: vsc.TextDocumentContentChangeEvent = {
       range: new vsc.Range(0, 8, 0, 8),
       rangeLength: 0,
+      rangeOffset: 8,
       text: ' ',
     };
 
@@ -81,9 +82,10 @@ suite('smartSpace', () => {
     const changeEvent: vsc.TextDocumentContentChangeEvent = {
       range: new vsc.Range(0, 7, 0, 7),
       rangeLength: 0,
+      rangeOffset: 7,
       text: ' ',
     };
-    
+
     const editor = await editorUtil.populateEditor(contents);
     await editorUtil.convertCharacterToCursorPositions('|');
     await smartSpace(changeEvent);
@@ -105,6 +107,7 @@ suite('smartClose', () => {
     const changeEvent: vsc.TextDocumentContentChangeEvent = {
       range: new vsc.Range(0, 9, 0, 9),
       rangeLength: 0,
+      rangeOffset: 9,
       text: '}',
     };
 
@@ -123,6 +126,7 @@ suite('smartClose', () => {
     const changeEvent: vsc.TextDocumentContentChangeEvent = {
       range: new vsc.Range(0, 18, 0, 18),
       rangeLength: 0,
+      rangeOffset: 18,
       text: '}',
     };
 
