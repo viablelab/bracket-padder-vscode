@@ -2,7 +2,7 @@
   "name": "bracket-padder",
   "displayName": "bracket-padder",
   "description": "Smart whitespace padding & auto-closing for bracket pairs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "viablelab",
   "repository": "https://github.com/viablelab/bracket-padder-vscode",
   "engines": {
