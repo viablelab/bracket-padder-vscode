@@ -36,7 +36,7 @@ const queueCommand = (name: string) => (): Thenable<boolean> =>
 
 /**
 * "Unpads" bracket pairs on backspace. E.g: (| = cursor)
-* 
+*
 * ------------------------------
 * { | } + <Backspace>
 * Results in: {|}
@@ -52,11 +52,11 @@ export function smartBackspace(change: vsc.TextDocumentContentChangeEvent): Then
 
   const document = editor.document;
   const selection = editor.selection;
-  
+
   try {
     const prevChar = getAdjacentCharacters(document, selection.active, -1);
     const nextChars = getAdjacentCharacters(document, selection.active, 2);
-    
+
     if (nextChars === unpad[prevChar]) {
       return vsc.commands.executeCommand('deleteRight');
     }
@@ -84,16 +84,16 @@ export function smartSpace(change: vsc.TextDocumentContentChangeEvent): Thenable
   }
 
   const document = editor.document;
-  
+
   try {
     const cursorPriorToChange = change.range.start;
     const cursorAfterChange = change.range.start.translate(0, 1);
 
     const prevChars = getAdjacentCharacters(document, cursorAfterChange, -2);
     const nextChar = getAdjacentCharacters(document, cursorAfterChange, 1);
-    
+
     if (nextChar === pad[prevChars]) {
-      return editor.edit(insert(cursorPriorToChange, ' '))
+      return editor.edit(insert(cursorPriorToChange, ' '), { undoStopAfter: false, undoStopBefore: false })
         .then(() => {
           editor.selection = new vsc.Selection(cursorAfterChange, cursorAfterChange);
           return true;
@@ -108,7 +108,7 @@ export function smartSpace(change: vsc.TextDocumentContentChangeEvent): Thenable
 
 /**
 * Closes bracket pairs when applicable. E.g: (| = cursor)
-* 
+*
 * ------------------------------
 * { foo: 'bar'| } + <}>
 * Results in: { foo: 'bar' }|
@@ -157,7 +157,8 @@ export function smartClose(change: vsc.TextDocumentContentChangeEvent): Thenable
   }
 
   return editor.edit(edit =>
-    edit.delete(new vsc.Range(change.range.start, change.range.start.translate(0, 1)))
+    edit.delete(new vsc.Range(change.range.start, change.range.start.translate(0, 1))),
+    { undoStopAfter: false, undoStopBefore: false }
   ).then(() => {
     const position = change.range.start.translate(0, 2);
     editor.selection = new vsc.Selection(position, position);
