@@ -6,7 +6,7 @@
   "publisher": "viablelab",
   "repository": "https://github.com/viablelab/bracket-padder-vscode",
   "engines": {
-    "vscode": "^1.39.0"
+    "vscode": "^1.40.0"
   },
   "categories": [
     "Other"
@@ -65,7 +65,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "vsce-package": "vsce package"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
@@ -77,6 +78,7 @@
     "mocha": "^6.2.2",
     "ramda": "^0.26.1",
     "typescript": "^3.7.2",
+    "vsce": "^1.69.0",
     "vscode-test": "^1.2.3"
   }
 }
