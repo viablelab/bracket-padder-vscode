@@ -1,6 +1,6 @@
 # bracket-padder for Visual Studio Code
 
-![](https://github.com/viablelab/bracket-padder-vscode/workflows/Node%20CI/badge.svg)
+![](https://github.com/viablelab/bracket-padder-vscode/workflows/Build/badge.svg)
 
 A simple package that provides smart whitespace padding and closing of bracket pairs: `()` `[]` `{}`
 
