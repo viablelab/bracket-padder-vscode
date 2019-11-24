@@ -5,10 +5,16 @@ import * as os from 'os';
 import * as fs from 'fs';
 
 function rndName(): string {
-  return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
+  return Math.random()
+    .toString(36)
+    .replace(/[^a-z]+/g, '')
+    .substr(0, 10);
 }
 
-function createRandomFile(contents = '', fileExtension = 'txt'): Thenable<vsc.Uri> {
+function createRandomFile(
+  contents = '',
+  fileExtension = 'txt'
+): Thenable<vsc.Uri> {
   return new Promise((resolve, reject) => {
     const tmpFile = path.join(os.tmpdir(), rndName() + `.${fileExtension}`);
     fs.writeFile(tmpFile, contents, err => {
@@ -29,63 +35,73 @@ function deleteFile(file: vsc.Uri): Thenable<boolean> {
       }
 
       resolve(true);
-    })
+    });
   });
 }
 
-function getActiveEditor(): vsc.TextEditor {
+function getActiveEditor(): vsc.TextEditor | undefined {
   return vsc.window.activeTextEditor;
 }
 
-function getActiveDocument(): vsc.TextDocument {
-  return getActiveEditor().document;
+function groupSelectionsByLine(selections: vsc.Selection[]) {
+  const activePositions = selections.map(selection => selection.active);
+  return R.groupBy(position => String(position.line), activePositions);
 }
-
-const groupSelectionsByLine = R.compose(
-  R.groupBy(R.prop('line')),
-  R.map(R.prop('active'))
-);
 
 const insertAtIndex = (str: string, index: number, char: string): string => {
   const start = str.slice(0, index);
   const end = str.slice(index);
 
   return start + char + end;
-}
+};
 
 interface EditorUtil {
-  clearEditor: () => Promise<boolean>,
-  closeAllEditors: () => Promise<void>,
-  convertCharacterToCursorPositions: (character: string, escape?: boolean) => Promise<void>,
-  convertCursorPositionsToCharacter: (character: string) => Promise<void>,
-  createAndOpenEditor: () => Promise<boolean>,
-  populateEditor: (contents: string) => Thenable<vsc.TextEditor>,
+  clearEditor: () => Promise<boolean>;
+  closeAllEditors: () => Promise<void>;
+  convertCharacterToCursorPositions: (
+    character: string,
+    escape?: boolean
+  ) => Promise<void>;
+  convertCursorPositionsToCharacter: (character: string) => Promise<void>;
+  createAndOpenEditor: () => Promise<boolean>;
+  populateEditor: (contents: string) => Thenable<vsc.TextEditor>;
 }
 
 export function createEditorUtil(): EditorUtil {
-  let file;
+  let file: vsc.Uri;
 
   return {
     async clearEditor() {
       const editor = getActiveEditor();
+
+      if (typeof editor === 'undefined') {
+        return Promise.resolve(false);
+      }
+
       await vsc.commands.executeCommand('editor.action.selectAll');
 
-      return editor.edit(edit =>
-        edit.delete(editor.selection)
-      );
+      // console.log('-> editor', editor);
+
+      return editor.edit(edit => edit.delete(editor.selection));
     },
     async closeAllEditors() {
-      const doc = getActiveDocument();
+      const editor = getActiveEditor();
+
+      if (typeof editor === 'undefined') {
+        return Promise.resolve();
+      }
+
+      const doc = editor.document;
 
       if (doc.isDirty) {
         await doc.save();
       }
 
       await deleteFile(file);
-      await vsc.commands.executeCommand('workbench.action.closeAllEditors');      
+      await vsc.commands.executeCommand('workbench.action.closeAllEditors');
     },
     async convertCharacterToCursorPositions(character, escape = true) {
-      const editor = getActiveEditor();
+      const editor = getActiveEditor()!;
       const lineCount = editor.document.lineCount;
       const positions = [];
 
@@ -97,7 +113,9 @@ export function createEditorUtil(): EditorUtil {
 
         for (let charIndex = 0; charIndex < text.length; charIndex++) {
           if (text[charIndex] === character) {
-            positions.push(new vsc.Position(line.lineNumber, charIndex - hitCount));
+            positions.push(
+              new vsc.Position(line.lineNumber, charIndex - hitCount)
+            );
             hitCount++;
           }
         }
@@ -108,21 +126,25 @@ export function createEditorUtil(): EditorUtil {
         });
       }
 
-      editor.selections = positions.map(position =>
-        new vsc.Selection(position, position)
+      editor.selections = positions.map(
+        position => new vsc.Selection(position, position)
       );
     },
     async convertCursorPositionsToCharacter(character) {
-      const editor = getActiveEditor();
+      const editor = getActiveEditor()!;
       const selectionsByLine = groupSelectionsByLine(editor.selections);
 
       for (let lineNumber in selectionsByLine) {
         const line = editor.document.lineAt(Number(lineNumber));
         let text = line.text;
         let insertCount = 0;
-        
+
         for (let selection of selectionsByLine[lineNumber]) {
-          text = insertAtIndex(text, selection.character + insertCount, character);
+          text = insertAtIndex(
+            text,
+            selection.character + insertCount,
+            character
+          );
           insertCount++;
         }
 
@@ -136,15 +158,15 @@ export function createEditorUtil(): EditorUtil {
 
       const doc = await vsc.workspace.openTextDocument(file);
       await vsc.window.showTextDocument(doc);
-      
+
       return true;
     },
     populateEditor(contents) {
-      const editor = getActiveEditor();
-      
-      return editor.edit(edit =>
-        edit.insert(new vsc.Position(0, 0), contents)
-      ).then(() => editor);
+      const editor = getActiveEditor()!;
+
+      return editor
+        .edit(edit => edit.insert(new vsc.Position(0, 0), contents))
+        .then(() => editor);
     },
   };
 }

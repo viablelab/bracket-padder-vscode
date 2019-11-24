@@ -11,42 +11,49 @@ const pairs = config.smartPairs;
 
 const invertedPairs = invert(pairs);
 
-const unpad = reduceIntoKeyPairs(pairs, key => ({
+interface PairsMap {
+  [character: string]: string;
+}
+
+const unpad: PairsMap = reduceIntoKeyPairs(pairs, key => ({
   [key]: ' ' + pairs[key],
 }));
 
-const pad = reduceIntoKeyPairs(pairs, key => ({
+const pad: PairsMap = reduceIntoKeyPairs(pairs, key => ({
   [key + ' ']: pairs[key],
 }));
 
 /**
-* Return `n` characters adjacent to `position`.
-*/
-function getAdjacentCharacters(document: vsc.TextDocument, position: vsc.Position, n: number): string {
+ * Return `n` characters adjacent to `position`.
+ */
+function getAdjacentCharacters(
+  document: vsc.TextDocument,
+  position: vsc.Position,
+  n: number
+): string {
   const toPosition = new vsc.Position(position.line, position.character + n);
   return document.getText(new vsc.Range(position, toPosition));
 }
 
-const insert = (cursor: vsc.Position, content: string) =>
-  (edit: vsc.TextEditorEdit): void =>
-    edit.insert(cursor, content);
-
-const queueCommand = (name: string) => (): Thenable<boolean> =>
-  vsc.commands.executeCommand(name);
+const insert = (cursor: vsc.Position, content: string) => (
+  edit: vsc.TextEditorEdit
+): void => edit.insert(cursor, content);
 
 /**
-* "Unpads" bracket pairs on backspace. E.g: (| = cursor)
-*
-* ------------------------------
-* { | } + <Backspace>
-* Results in: {|}
-* Instead of: {| }
-* ------------------------------
-*/
-export function smartBackspace(change: vsc.TextDocumentContentChangeEvent): Thenable<boolean> {
+ * "Unpads" bracket pairs on backspace. E.g: (| = cursor)
+ *
+ * ------------------------------
+ * { | } + <Backspace>
+ * Results in: {|}
+ * Instead of: {| }
+ * ------------------------------
+ */
+export function smartBackspace(
+  _change: vsc.TextDocumentContentChangeEvent
+): Thenable<boolean | undefined> {
   const editor = vsc.window.activeTextEditor;
 
-  if (editor.selections.length > 1) {
+  if (!editor || editor.selections.length > 1) {
     return Promise.resolve(false);
   }
 
@@ -68,18 +75,20 @@ export function smartBackspace(change: vsc.TextDocumentContentChangeEvent): Then
 }
 
 /**
-* Pads bracket pairs on space. E.g: (| = cursor)
-*
-* ------------------------------
-* {|} + <Space>
-* Results in: { | }
-* Instead of: { |}
-* ------------------------------
-*/
-export function smartSpace(change: vsc.TextDocumentContentChangeEvent): Thenable<boolean> {
+ * Pads bracket pairs on space. E.g: (| = cursor)
+ *
+ * ------------------------------
+ * {|} + <Space>
+ * Results in: { | }
+ * Instead of: { |}
+ * ------------------------------
+ */
+export function smartSpace(
+  change: vsc.TextDocumentContentChangeEvent
+): Thenable<boolean> {
   const editor = vsc.window.activeTextEditor;
 
-  if (editor.selections.length > 1) {
+  if (!editor || editor.selections.length > 1) {
     return Promise.resolve(false);
   }
 
@@ -93,9 +102,16 @@ export function smartSpace(change: vsc.TextDocumentContentChangeEvent): Thenable
     const nextChar = getAdjacentCharacters(document, cursorAfterChange, 1);
 
     if (nextChar === pad[prevChars]) {
-      return editor.edit(insert(cursorPriorToChange, ' '), { undoStopAfter: false, undoStopBefore: false })
+      return editor
+        .edit(insert(cursorPriorToChange, ' '), {
+          undoStopAfter: false,
+          undoStopBefore: false,
+        })
         .then(() => {
-          editor.selection = new vsc.Selection(cursorAfterChange, cursorAfterChange);
+          editor.selection = new vsc.Selection(
+            cursorAfterChange,
+            cursorAfterChange
+          );
           return true;
         });
     }
@@ -107,15 +123,17 @@ export function smartSpace(change: vsc.TextDocumentContentChangeEvent): Thenable
 }
 
 /**
-* Closes bracket pairs when applicable. E.g: (| = cursor)
-*
-* ------------------------------
-* { foo: 'bar'| } + <}>
-* Results in: { foo: 'bar' }|
-* Instead of: { foo: 'bar'}| }
-* ------------------------------
-*/
-export function smartClose(change: vsc.TextDocumentContentChangeEvent): Thenable<boolean> {
+ * Closes bracket pairs when applicable. E.g: (| = cursor)
+ *
+ * ------------------------------
+ * { foo: 'bar'| } + <}>
+ * Results in: { foo: 'bar' }|
+ * Instead of: { foo: 'bar'}| }
+ * ------------------------------
+ */
+export function smartClose(
+  change: vsc.TextDocumentContentChangeEvent
+): Thenable<boolean> {
   const opening = invertedPairs[change.text];
 
   if (!opening) {
@@ -124,7 +142,7 @@ export function smartClose(change: vsc.TextDocumentContentChangeEvent): Thenable
 
   const editor = vsc.window.activeTextEditor;
 
-  if (editor.selections.length > 1) {
+  if (!editor || editor.selections.length > 1) {
     return Promise.resolve(false);
   }
 
@@ -136,7 +154,6 @@ export function smartClose(change: vsc.TextDocumentContentChangeEvent): Thenable
   }
 
   const index = change.range.start.character;
-  const startIndex = Math.min(0, index);
   const nextChars = line.text.slice(index + 1, index + 3);
 
   if (nextChars !== ' ' + change.text) {
@@ -156,12 +173,17 @@ export function smartClose(change: vsc.TextDocumentContentChangeEvent): Thenable
     return Promise.resolve(false);
   }
 
-  return editor.edit(edit =>
-    edit.delete(new vsc.Range(change.range.start, change.range.start.translate(0, 1))),
-    { undoStopAfter: false, undoStopBefore: false }
-  ).then(() => {
-    const position = change.range.start.translate(0, 2);
-    editor.selection = new vsc.Selection(position, position);
-    return true;
-  });
+  return editor
+    .edit(
+      edit =>
+        edit.delete(
+          new vsc.Range(change.range.start, change.range.start.translate(0, 1))
+        ),
+      { undoStopAfter: false, undoStopBefore: false }
+    )
+    .then(() => {
+      const position = change.range.start.translate(0, 2);
+      editor.selection = new vsc.Selection(position, position);
+      return true;
+    });
 }

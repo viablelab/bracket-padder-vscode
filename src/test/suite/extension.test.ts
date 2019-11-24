@@ -1,9 +1,8 @@
 import * as assert from 'assert';
 
 import * as vsc from 'vscode';
-import { createEditorUtil } from './testUtils';
-import * as extension from '../src/extension';
-import { smartBackspace, smartClose, smartSpace } from '../src/smartActions';
+import { createEditorUtil } from '../test-utils';
+import { smartBackspace, smartClose, smartSpace } from '../../smartActions';
 
 const editorUtil = createEditorUtil();
 
