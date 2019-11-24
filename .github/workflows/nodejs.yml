@@ -25,3 +25,5 @@ jobs:
         npm test
       env:
         CI: true
+        CODE_VERSION: ''
+        DISPLAY: ':99.0'
