@@ -1,4 +1,6 @@
-# bracket-padder for Visual Studio Code
+# bracket-padder
+
+> ... for Visual Studio Code
 
 A simple package that provides smart whitespace padding and closing of bracket pairs: `()` `[]` `{}`
 
