@@ -61,6 +61,7 @@ export function smartBackspace(
   const selection = editor.selection;
 
   try {
+    // Adjust the position to 1 character back.
     const adjustedPosition = new vsc.Position(selection.active.line, selection.active.character - 1);
     const prevChar = getAdjacentCharacters(document, adjustedPosition, -1);
     const nextChars = getAdjacentCharacters(document, adjustedPosition, 2);
