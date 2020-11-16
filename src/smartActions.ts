@@ -61,8 +61,10 @@ export function smartBackspace(
   const selection = editor.selection;
 
   try {
-    const prevChar = getAdjacentCharacters(document, selection.active, -1);
-    const nextChars = getAdjacentCharacters(document, selection.active, 2);
+    // Adjust the position to 1 character back.
+    const adjustedPosition = new vsc.Position(selection.active.line, selection.active.character - 1);
+    const prevChar = getAdjacentCharacters(document, adjustedPosition, -1);
+    const nextChars = getAdjacentCharacters(document, adjustedPosition, 2);
 
     if (nextChars === unpad[prevChar]) {
       return vsc.commands.executeCommand('deleteRight');
