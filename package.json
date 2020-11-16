@@ -16,20 +16,6 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "extension.smartClosingCurlyBracket",
-        "title": "Smart }"
-      },
-      {
-        "command": "extension.smartClosingSquareBracket",
-        "title": "Smart ]"
-      },
-      {
-        "command": "extension.smartClosingParen",
-        "title": "Smart )"
-      }
-    ],
     "configuration": {
       "type": "object",
       "title": "bracket-padder",
@@ -53,13 +39,7 @@
           "description": "Pairs handled by this extension"
         }
       }
-    },
-    "keybindings": [
-      {
-        "command": "extension.smartBackspace",
-        "key": "ctrl+ä"
-      }
-    ]
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
