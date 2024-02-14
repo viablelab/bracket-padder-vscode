@@ -1,3 +1,5 @@
+⚠️ **NOTE!** Not actively maintained due to not currently using the VSCode editor.
+
 # bracket-padder
 
 > ... for Visual Studio Code
